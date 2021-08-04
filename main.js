@@ -4,7 +4,7 @@ const buttons = [
   { name: 'add', symbol: '+', operator: '+', type: 'operator' },
   { name: 'subtract', symbol: '-', operator: '-', type: 'operator' },
   { name: 'divide', symbol: '&#xf7;', operator: '/', type: 'operator' },
-  { name: 'multiply', symbol: 'x', operator: '*', type: 'operator' },
+  { name: 'multiply', symbol: '&#x2715', operator: '*', type: 'operator' },
   { name: 'seven', symbol: '7', operator: '7', type: 'number' },
   { name: 'eight', symbol: '8', operator: '8', type: 'number' },
   { name: 'nine', symbol: '9', operator: '9', type: 'number' },
@@ -77,7 +77,7 @@ for (let i = 0; i < 2; i++) {
   display[i].style.textAlign = 'right';
   display[i].style.padding = '0 5px 0 0';
   //   display[i].style.justifyContent = 'center';
-  display[i].style.background = 'purple';
+  // display[i].style.background = 'purple';
   screen.appendChild(display[i]);
 }
 
@@ -97,7 +97,7 @@ calculatorKeys.style.display = 'flex';
 calculatorKeys.style.flexWrap = 'wrap';
 calculatorKeys.style.textAlign = 'center';
 calculatorKeys.style.justifyContent = 'space-between';
-calculatorKeys.style.background = 'rgba(104,204,22,.5)';
+calculatorKeys.style.background = 'rgba(230,230,230,1)';
 calculatorKeys.style.alignItems = 'center';
 calculatorKeys.classList.add('keysRow');
 calculator.appendChild(calculatorKeys);
@@ -137,6 +137,9 @@ for (let i = 0; i < 19; i++) {
   btn.style.fontSize = '28px';
 
   btn.style.justifyContent = 'center';
+
+  // btn class
+  btn.setAttribute('class', 'btn');
   // const operator = buttons[`${j}`].operator;
   // console.log(operator);
   // if (/'+*-\/'/.test(operator)) console.log('hello', operator);
@@ -146,29 +149,56 @@ for (let i = 0; i < 19; i++) {
     buttons[`${i}`].operator == '+' ||
     buttons[`${i}`].operator == '/'
   ) {
-    btn.setAttribute('class', 'operator');
+    btn.classList.add('operator');
   } else if (buttons[`${i}`].operator == 'ans') {
-    btn.setAttribute('class', 'ans');
+    btn.classList.add('ans');
   } else if (buttons[`${i}`].operator == 'clr') {
-    btn.setAttribute('class', 'clr');
+    btn.classList.add('clr');
   } else if (buttons[`${i}`].operator == 'sqrt') {
-    btn.setAttribute('class', 'sqrt');
+    btn.classList.add('sqrt');
   } else if (buttons[`${i}`].operator == '=') {
-    btn.setAttribute('class', 'equal');
+    btn.classList.add('equal');
   } else {
-    btn.setAttribute('class', 'number');
+    btn.classList.add('number');
   }
   if (buttons[`${i}`].type !== 'number') {
-    btn.style.background = 'rgba(251,21,21,0.3)';
-    btn.style.boxShadow = '';
+    btn.style.background = 'rgba(115,21,191,0.3)';
+    // btn.style.boxShadow = '';
   } else {
-    btn.style.background = 'rgba(243,243,243,0.3)';
+    btn.style.background = 'rgba(255,255,255,.5)';
   }
+  // adding id with button names
   btn.innerHTML = buttons[`${i}`].symbol;
   btn.setAttribute('id', buttons[`${i}`].name);
   // append to row
   calculatorKeys.appendChild(btn);
 }
+
+let btns = document.querySelectorAll('.btn');
+
+// get btn class to add hover and actice
+// console.log(btns[1]);
+btns.forEach(e => {
+  e.addEventListener('click', () => {
+    console.log(e);
+    e.style.transform = 'translateY(3px)';
+    e.style.background = 'rgba(187, 187, 187, 1)';
+    setTimeout(function btnActiveRecover() {
+      console.log('enter');
+      if (e.classList.contains('number')) {
+        e.style.transform = 'translateY(0px)';
+        e.style.background = 'rgba(255,255,255,.5)';
+      } else if (e.classList.contains('equal')) {
+        e.style.transform = 'translateY(0px)';
+        e.style.background = 'rgba(16,66,166,.4)';
+      } else {
+        e.style.transform = 'translateY(0px)';
+        e.style.background = 'rgba(16,66,166,.4)';
+      }
+    }, 150);
+  });
+});
+
 // }
 // adding id to buttons
 
@@ -183,6 +213,23 @@ calculatorKeys.lastChild.style.fontSize = '33px';
 calculatorKeys.lastChild.style.background = 'rgba(16,66,166,.4)';
 // functionality logic
 
+function calculate(num1, num2, opr) {
+  num1 = parseFloat(num1);
+  num2 = parseFloat(num2);
+  if (opr == 'add') {
+    return num1 + num2;
+  }
+  if (opr == 'subtract') {
+    return num1 - num2;
+  }
+  if (opr == 'multiply') {
+    return num1 * num2;
+  }
+  if (opr == 'divide') {
+    return num1 / num2;
+  }
+}
+
 let num,
   numbers = 0,
   operator = [],
@@ -190,64 +237,147 @@ let num,
   valueOnScreen = '',
   num1 = '',
   num2 = '',
-  opr = '',
+  opr,
   result = '',
-  val = false;
+  input,
+  val = false,
+  displayOpr;
 let saved;
 container.addEventListener('click', function (e) {
   // console.log(e.target);
-  buttons.forEach(el => {
-    if (e.target.classList.contains('number')) {
-      val = true;
-      if (opr == '') {
-        // console.log(e.target.innerHTML);
-        input = e.target.innerHTML;
-      } else {
-        console.log('2nd num');
-        opr = display[1].innerHTML;
-        display[0].innerHTML += ' ';
-        display[0].innerHTML += opr;
+  // buttons.forEach(el => {
+  if (e.target.classList.contains('number')) {
+    // getting the first number when no values are present
+    if (!num1 && !num2 && !opr) {
+      display[1].innerHTML += e.target.innerText;
+      // num1 = '';
+    }
+    // getting the second number when num1 and opr present
+    else if (num1 && opr && !num2) {
+      // value on the display
+      let str = display[1].innerHTML;
+      console.log(str[str.length - 1]);
+      // checking if the last value is not a num
+      if (!/[0-9]/.test(str[str.length - 1])) {
+        // checking if changing the operand
+        let newOpr = e.target.innerText;
+        if (/[+][-][*]['&#xf7']/.test(str[str.length - 1])) {
+          display[1].innerHTML = newOpr;
+        }
+        console.log('true');
+        display[0].innerHTML += display[1].innerHTML;
         display[1].innerHTML = '';
-        input = e.target.innerHTML;
-      }
-    } else if (e.target.classList.contains('operator')) {
-      val = false;
-      console.log('opr', display[0], num1);
-      if (num1 == '') {
+        num2 = e.target.innerText;
+        display[1].innerHTML = num2;
+      } else {
+        console.log('two');
+        num2 += e.target.innerText;
+        display[1].innerHTML += e.target.innerText;
+      } // display[1].innerHTML;
+    } else if (num2) {
+      num2 += e.target.innerText;
+      display[1].innerHTML += e.target.innerText;
+    }
+  } else if (e.target.classList.contains('operator')) {
+    if (!num1 && !num2 && !opr) {
+      if (display[1].innerHTML) {
         num1 = display[1].innerHTML;
         display[0].innerHTML += num1;
         display[1].innerHTML = '';
       }
-      console.log(valueOnScreen.charAt(valueOnScreen.length - 1));
-
-      if (/[-+*/]/g.test('-')) {
-        console.log('enter');
-      }
-      if (e.target.id == 'add') {
-        // add();
-        console.log('+');
-        input = '+';
-      } else if (e.target.id == 'subtract') {
-        input = '-';
-      } else if (e.target.id == 'multiply') {
-        input = '*';
-      } else if (e.target.id == 'divide') {
-        input = '&#xf7';
-      }
-      if (num && num2 == '') {
-        num2 = display[1].innerHTML;
-        console.log(num1, opr, num2);
-        result = calculate();
-      }
-    } else if (e.target.classList.contains('ans')) {
-      saved = display[1].innerHTML;
-    } else if (e.target.classList.contains('clr')) {
-    } else if (e.target.classList.contains('sqrt')) {
     }
-  });
-  display[1].innerHTML += input;
 
-  valueOnScreen = display[1].innerHTML;
+    // save the first num
+    // if (!num1 && !num2 && !opr) {
+    // num1 = display[1].innerHTML;
+    // display[0].innerHTML += num1;
+    // display[1].innerHTML = '';
+    // }
+
+    if (num1 && num2 && opr) {
+      console.log(num1, num2, opr);
+      num2 = display[1].innerHTML;
+      display[1].innerHTML = '';
+      console.log('ddd');
+      console.log(num1, num2, opr);
+      result = calculate(num1, num2, opr);
+      display[0].innerHTML = result;
+      num1 = result;
+      num2 = '';
+      console.log(result);
+    }
+    // entered operator
+
+    if (e.target.id == 'add') {
+      // add();
+      opr = e.target.id;
+      input = '+';
+      display[1].innerHTML = input;
+    } else if (e.target.id == 'subtract') {
+      opr = e.target.id;
+      input = '-';
+      display[1].innerHTML = input;
+    } else if (e.target.id == 'multiply') {
+      opr = e.target.id;
+      input = '*';
+      display[1].innerHTML = input;
+    } else if (e.target.id == 'divide') {
+      opr = e.target.id;
+      input = '&#xf7';
+      display[1].innerHTML = input;
+    }
+    // display[1].innerHTML += input;
+  } else if (e.target.classList.contains('ans')) {
+    if (!saved) {
+      if (!display[0].innerHTML) {
+        saved = display[1].innerHTML;
+      } else {
+        saved = display[0].innerHTML;
+      }
+    } else {
+      display[1].innerHTML = saved;
+    }
+    num1 = saved;
+    display[0].innerHTML = num1;
+    display[1].innerHTML = '';
+  } else if (e.target.classList.contains('clr')) {
+    let str = display[1].innerHTML;
+    console.log('clr', str.length);
+    let newStr = str.slice(0, str.length - 1);
+    display[1].innerHTML = newStr;
+    if (!display[1].innerHTML) {
+      display[1].innerHTML = '';
+    }
+  } else if (e.target.classList.contains('sqrt')) {
+    let num = display[1].innerHTML;
+    let sqrt = Math.sqrt(num).toFixed(4);
+    display[1].innerHTML = sqrt;
+  } else if (e.target.classList.contains('equal')) {
+    if (!num1 && !num2 && !opr) {
+      if (!display[0].innerHTML) {
+        let curDisp1 = display[1].innerHTML;
+        display[0].innerHTML = curDisp1;
+        display[1].innerHTML = '';
+        num1 = curDisp1;
+      }
+      // let curDisp0 = display[0].innerHTML;
+      // display[1].innerHTML = curDisp1;
+    }
+    if (num) console.log(num1, num2, opr);
+    console.log('ddd');
+    console.log(num1, num2, opr);
+    if (num1 && num2 && opr) {
+      num2 = display[1].innerHTML;
+      display[1].innerHTML = '';
+      result = calculate(num1, num2, opr);
+      display[0].innerHTML = result;
+      num1 = result;
+      num2 = '';
+    }
+  } else input = '';
+  // });
+
+  // valueOnScreen = display[1].innerHTML;
 });
 
 // display[0].innerHTML = '11';
