@@ -1,3 +1,4 @@
+'use strict';
 // calculator buttons object array
 
 const buttons = [
@@ -8,7 +9,7 @@ const buttons = [
   { name: 'seven', symbol: '7', operator: '7', type: 'number' },
   { name: 'eight', symbol: '8', operator: '8', type: 'number' },
   { name: 'nine', symbol: '9', operator: '9', type: 'number' },
-  { name: 'answer', symbol: 'ANS', operator: 'ans', type: 'ans' },
+  { name: 'sqrt', symbol: '&#x221A', operator: 'sqrt', type: 'sqrt' },
   { name: 'four', symbol: '4', operator: '4', type: 'number' },
   { name: 'five', symbol: '5', operator: '5', type: 'number' },
   { name: 'six', symbol: '6', operator: '6', type: 'number' },
@@ -16,7 +17,7 @@ const buttons = [
   { name: 'one', symbol: '1', operator: '1', type: 'number' },
   { name: 'two', symbol: '2', operator: '2', type: 'number' },
   { name: 'three', symbol: '3', operator: '3', type: 'number' },
-  { name: 'sqrt', symbol: '&#x221A;', operator: 'sqrt', type: 'sqrt' },
+  { name: 'clearEvr', symbol: 'CE', operator: 'ce', type: 'ce' },
   { name: 'point', symbol: '.', operator: '.', type: 'number' },
   { name: 'zero', symbol: '0', operator: '0', type: 'number' },
   { name: 'equal', symbol: '=', operator: '=', type: 'equal' },
@@ -150,17 +151,22 @@ for (let i = 0; i < 19; i++) {
     buttons[`${i}`].operator == '/'
   ) {
     btn.classList.add('operator');
-  } else if (buttons[`${i}`].operator == 'ans') {
-    btn.classList.add('ans');
-  } else if (buttons[`${i}`].operator == 'clr') {
-    btn.classList.add('clr');
+  } else if (buttons[`${i}`].operator == '.') {
+    btn.classList.add('decimal');
+    btn.classList.add('number');
   } else if (buttons[`${i}`].operator == 'sqrt') {
     btn.classList.add('sqrt');
+  } else if (buttons[`${i}`].operator == 'clr') {
+    btn.classList.add('clr');
+  } else if (buttons[`${i}`].operator == 'ce') {
+    btn.classList.add('ce');
   } else if (buttons[`${i}`].operator == '=') {
     btn.classList.add('equal');
   } else {
     btn.classList.add('number');
   }
+
+  // background color for icons
   if (buttons[`${i}`].type !== 'number') {
     btn.style.background = 'rgba(115,21,191,0.3)';
     // btn.style.boxShadow = '';
@@ -176,26 +182,51 @@ for (let i = 0; i < 19; i++) {
 
 let btns = document.querySelectorAll('.btn');
 
-// get btn class to add hover and actice
+// get btn class to add active
 // console.log(btns[1]);
 btns.forEach(e => {
-  e.addEventListener('click', () => {
-    console.log(e);
+  e.addEventListener('mousedown', () => {
     e.style.transform = 'translateY(3px)';
-    e.style.background = 'rgba(187, 187, 187, 1)';
-    setTimeout(function btnActiveRecover() {
-      console.log('enter');
-      if (e.classList.contains('number')) {
-        e.style.transform = 'translateY(0px)';
-        e.style.background = 'rgba(255,255,255,.5)';
-      } else if (e.classList.contains('equal')) {
-        e.style.transform = 'translateY(0px)';
-        e.style.background = 'rgba(16,66,166,.4)';
-      } else {
-        e.style.transform = 'translateY(0px)';
-        e.style.background = 'rgba(16,66,166,.4)';
-      }
-    }, 150);
+    // e.style.background = 'rgba(187, 187, 187, 1)';
+
+    if (e.classList.contains('number')) {
+      // e.style.transform = 'translateY(0px)';
+      e.style.background = 'rgba(118, 118, 187, 1)';
+    } else if (e.classList.contains('equal')) {
+      // e.style.transform = 'translateY(0px)';
+      e.style.background = 'rgba(118, 118, 187, 1)';
+    } else {
+      // e.style.transform = 'translateY(0px)';
+      e.style.background = 'rgba(118, 118, 187, 1)';
+    }
+  });
+  // setTimeout(function btnActiveRecover() {
+  //   console.log('enter');
+  //   if (e.classList.contains('number')) {
+  //     e.style.transform = 'translateY(0px)';
+  //     e.style.background = 'rgba(255,255,255,.5)';
+  //   } else if (e.classList.contains('equal')) {
+  //     e.style.transform = 'translateY(0px)';
+  //     e.style.background = 'rgba(16,66,166,.4)';
+  //   } else {
+  //     e.style.transform = 'translateY(0px)';
+  //     e.style.background = 'rgba(115,21,191,0.3)';
+  //   }
+  // }, 150);
+  e.addEventListener('mouseup', () => {
+    e.style.transform = 'translateY(0px)';
+    // e.style.background = 'rgba(187, 187, 187, 1)';
+
+    if (e.classList.contains('number')) {
+      // e.style.transform = 'translateY(0px)';
+      e.style.background = 'rgba(255,255,255,.5)';
+    } else if (e.classList.contains('equal')) {
+      // e.style.transform = 'translateY(0px)';
+      e.style.background = 'rgba(16,66,166,.4)';
+    } else {
+      // e.style.transform = 'translateY(0px)';
+      e.style.background = 'rgba(115,21,191,0.3)';
+    }
   });
 });
 
@@ -235,22 +266,30 @@ let num,
   operator = [],
   calculation = [],
   valueOnScreen = '',
-  num1 = '',
-  num2 = '',
+  num1,
+  num2,
   opr,
   result = '',
   input,
-  val = false,
-  displayOpr;
+  displayOpr,
+  decimal;
 let saved;
+
 container.addEventListener('click', function (e) {
   // console.log(e.target);
   // buttons.forEach(el => {
   if (e.target.classList.contains('number')) {
+    // let display0num = display[0].innerHTML;
+    // if (!/[+][-][*]['&#xf7']/.test(display0num[display0num.length - 1])) {
+    //   display[1].innerHTML += e.target.innerText;
+    // }
     // getting the first number when no values are present
     if (!num1 && !num2 && !opr) {
       display[1].innerHTML += e.target.innerText;
       // num1 = '';
+    } else if (num1 && !opr && !num2) {
+      if (saved && display[1].innerText == '') {
+      }
     }
     // getting the second number when num1 and opr present
     else if (num1 && opr && !num2) {
@@ -259,11 +298,15 @@ container.addEventListener('click', function (e) {
       console.log(str[str.length - 1]);
       // checking if the last value is not a num
       if (!/[0-9]/.test(str[str.length - 1])) {
-        // checking if changing the operand
-        let newOpr = e.target.innerText;
-        if (/[+][-][*]['&#xf7']/.test(str[str.length - 1])) {
-          display[1].innerHTML = newOpr;
+        if (!display[1].innerHTML) {
+          return;
         }
+        // checking if changing the operand
+        // let newOpr = e.target.innerText;
+        // if (/[+][-][*]['&#xf7']/.test(str[str.length - 1])) {
+        //   display[1].innerHTML = newOpr;
+        //   opr = e.target.id;
+        // }
         console.log('true');
         display[0].innerHTML += display[1].innerHTML;
         display[1].innerHTML = '';
@@ -284,6 +327,10 @@ container.addEventListener('click', function (e) {
         num1 = display[1].innerHTML;
         display[0].innerHTML += num1;
         display[1].innerHTML = '';
+      } else {
+        opr = '';
+        num1 = '';
+        num2 = '';
       }
     }
 
@@ -327,31 +374,32 @@ container.addEventListener('click', function (e) {
       display[1].innerHTML = input;
     }
     // display[1].innerHTML += input;
-  } else if (e.target.classList.contains('ans')) {
-    if (!saved) {
-      if (!display[0].innerHTML) {
-        saved = display[1].innerHTML;
-      } else {
-        saved = display[0].innerHTML;
-      }
-    } else {
-      display[1].innerHTML = saved;
+  } else if (e.target.classList.contains('sqrt')) {
+    console.log('click');
+    console.log(!isNaN(display[1].innerText));
+    if (!display[1].innerHTML) {
+      return;
+    } else if (!isNaN(display[1].innerText)) {
+      let num = Number(display[1].innerText);
+      let result = Math.sqrt(num).toFixed(5);
+      display[1].innerText = result;
     }
-    num1 = saved;
-    display[0].innerHTML = num1;
-    display[1].innerHTML = '';
   } else if (e.target.classList.contains('clr')) {
     let str = display[1].innerHTML;
-    console.log('clr', str.length);
     let newStr = str.slice(0, str.length - 1);
     display[1].innerHTML = newStr;
     if (!display[1].innerHTML) {
       display[1].innerHTML = '';
     }
-  } else if (e.target.classList.contains('sqrt')) {
-    let num = display[1].innerHTML;
-    let sqrt = Math.sqrt(num).toFixed(4);
-    display[1].innerHTML = sqrt;
+  } else if (e.target.classList.contains('decimal')) {
+    if (!decimal) {
+      display[1].innerText += e.target.innerText;
+      decimal = true;
+    } else return;
+  } else if (e.target.classList.contains('ce')) {
+    saved = '';
+    display[0].innerHTML = '';
+    display[1].innerHTML = '';
   } else if (e.target.classList.contains('equal')) {
     if (!num1 && !num2 && !opr) {
       if (!display[0].innerHTML) {
@@ -364,8 +412,6 @@ container.addEventListener('click', function (e) {
       // display[1].innerHTML = curDisp1;
     }
     if (num) console.log(num1, num2, opr);
-    console.log('ddd');
-    console.log(num1, num2, opr);
     if (num1 && num2 && opr) {
       num2 = display[1].innerHTML;
       display[1].innerHTML = '';
